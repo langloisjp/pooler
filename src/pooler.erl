@@ -258,7 +258,7 @@ code_change(_OldVsn, State, _Extra) ->
 %% Internal Function Definitions
 %% ------------------------------------------------------------------
 
-%% @doc Internal version of addpools.
+%% @doc Add multiple pools.
 %% Iterate over list of pool specifications calling addpool/2.
 -spec addpools([[atom()|{atom(), term()}]], #state{}) -> #state{}.
 addpools(PoolConfigs, State) ->
@@ -623,8 +623,7 @@ add_member_to_consumer(MemberPid, CPid, CPMap) ->
 
 -spec cull_members(string(), #state{}) -> #state{}.
 cull_members(PoolName, #state{pools = Pools} = State) ->
-    Pool = fetch_pool(PoolName, Pools),
-    cull_members_from_pool(Pool, State).
+    cull_members_from_pool(fetch_pool(PoolName, Pools), State).
 
 -spec cull_members_from_pool(#pool{}, #state{}) -> #state{}.
 cull_members_from_pool(error_no_pool, State) ->
