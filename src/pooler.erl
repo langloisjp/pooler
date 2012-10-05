@@ -76,7 +76,6 @@
          start_link/1,
          stop/0,
          addpool/1,
-         addpools/1,
          take_member/0,
          take_member/1,
          return_member/1,
@@ -120,13 +119,6 @@ stop() ->
 -spec addpool([atom()|{atom(), term()}]) -> ok | {error, term()}.
 addpool(PoolConfig) ->
     gen_server:call(?SERVER, {addpool, PoolConfig}).
-
-%% @doc Add multiple pools.
-%% Input is a list of PoolConfigs.
-%% Returns ok|{error, ErrorInfo}
--spec addpools([[atom()|{atom(), term()}]]) -> ok | {error, term()}.
-addpools(PoolConfigs) ->
-    gen_server:call(?SERVER, {addpools, PoolConfigs}).
 
 %% @doc Obtain exclusive access to a member from a randomly selected pool.
 %%
@@ -198,7 +190,7 @@ init(Config) ->
         State1 = addpools(?gv(pools, Config), State0),
         {ok, State1}
     catch
-        throw:duplicate_pool_name -> {error, duplicate_pool_name}
+        throw:ErrorInfo -> {error, ErrorInfo}
     end.
 
 handle_call({addpool, PoolConfig}, {_CPid, _Tag}, State) ->
@@ -209,9 +201,6 @@ handle_call({addpool, PoolConfig}, {_CPid, _Tag}, State) ->
         throw:ErrorInfo ->
             {reply, {error, ErrorInfo}, State}
     end;
-handle_call({addpools, PoolConfigs}, {_CPid, _Tag}, State) ->
-    State1 = addpools(PoolConfigs, State),
-    {reply, ok, State1};
 handle_call(take_member, {CPid, _Tag}, State) ->
     {Result, NewState} =  pick_member(CPid, State),
     {reply, Result, NewState};
