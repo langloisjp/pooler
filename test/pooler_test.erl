@@ -491,7 +491,7 @@ pooler_addpool_test_() ->
                Result = pooler:addpool(PoolConfig),
                ?assertEqual(ok, Result),
                Result2 = pooler:addpool(PoolConfig),
-               ?assertEqual({error, duplicate_pool_name}, Result2)
+               ?assertEqual({error, {duplicate_pool_name, PoolName}}, Result2)
        end},
       
       {"can add multiple pools",

@@ -206,8 +206,8 @@ handle_call({addpool, PoolConfig}, {_CPid, _Tag}, State) ->
         State1 = addpool(PoolConfig, State),
         {reply, ok, State1}
     catch
-        throw:duplicate_pool_name ->
-            {reply, {error, duplicate_pool_name}, State}
+        throw:ErrorInfo ->
+            {reply, {error, ErrorInfo}, State}
     end;
 handle_call({addpools, PoolConfigs}, {_CPid, _Tag}, State) ->
     State1 = addpools(PoolConfigs, State),
@@ -289,7 +289,7 @@ addpool(PoolConfig, #state{npools = NPools,
     %% Make sure we don't have a pool under that name already
     case fetch_pool(PoolRec#pool.name, Pools) of
         error_no_pool -> ok;
-        _Pool -> throw(duplicate_pool_name)
+        _Pool -> throw({duplicate_pool_name, PoolRec#pool.name})
     end,
     OutPools = dict:store(PoolRec#pool.name, PoolRec, Pools),
     {ok, SupPid} = supervisor:start_child(pooler_pool_sup, [PoolRec#pool.start_mfa]),
